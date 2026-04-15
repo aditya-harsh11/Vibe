@@ -38,111 +38,155 @@ function RadarRings() {
     <group rotation={[-Math.PI / 2, 0, 0]}>
       {rings.map((r, i) => (
         <mesh key={i} position={[0, 0, 0.02]}>
-          <ringGeometry args={[R * r - 0.06, R * r, 96]} />
-          <meshBasicMaterial color="#c5532c" transparent opacity={0.22 + i * 0.05} side={THREE.DoubleSide} />
+          <ringGeometry args={[R * r - 0.05, R * r, 96]} />
+          <meshBasicMaterial color="#fff8ea" transparent opacity={0.35 + i * 0.05} side={THREE.DoubleSide} />
         </mesh>
       ))}
       <mesh position={[0, 0, 0.015]}>
-        <planeGeometry args={[R * 2, 0.04]} />
-        <meshBasicMaterial color="#c5532c" transparent opacity={0.18} />
+        <planeGeometry args={[R * 2, 0.035]} />
+        <meshBasicMaterial color="#fff8ea" transparent opacity={0.25} />
       </mesh>
       <mesh position={[0, 0, 0.015]} rotation={[0, 0, Math.PI / 2]}>
-        <planeGeometry args={[R * 2, 0.04]} />
-        <meshBasicMaterial color="#c5532c" transparent opacity={0.18} />
+        <planeGeometry args={[R * 2, 0.035]} />
+        <meshBasicMaterial color="#fff8ea" transparent opacity={0.25} />
       </mesh>
     </group>
   )
 }
 
-// ── Warm terrain ridges — desert mesa silhouettes ───────
-function TerrainRidges() {
-  const peaks = useMemo(() => {
+// ── Distant trees ringing the quad — UW Madison greenspace ──
+function CampusTrees() {
+  const trees = useMemo(() => {
     const arr = []
-    const rings = 2
-    for (let r = 0; r < rings; r++) {
-      const radius = 16 + r * 6
-      const count = 22 + r * 4
-      for (let i = 0; i < count; i++) {
-        const a = (i / count) * Math.PI * 2 + (r * 0.3)
-        const jitter = (Math.sin(i * 1.7 + r * 3.3) + 1) / 2
-        const h = 1.4 + jitter * 3 + r * 0.5
-        arr.push({
-          x: Math.cos(a) * (radius + jitter * 1.5),
-          z: Math.sin(a) * (radius + jitter * 1.5),
-          h,
-          hueIdx: i % 5,
-          r,
-        })
-      }
+    const ring1 = 26
+    const ring2 = 32
+    const count1 = 18
+    const count2 = 14
+    for (let i = 0; i < count1; i++) {
+      const a = (i / count1) * Math.PI * 2 + 0.17
+      const jit = (Math.sin(i * 2.3) + 1) / 2
+      arr.push({
+        x: Math.cos(a) * (ring1 + jit * 1.8),
+        z: Math.sin(a) * (ring1 + jit * 1.8),
+        scale: 0.85 + jit * 0.45,
+        hue: i % 3,
+      })
+    }
+    for (let i = 0; i < count2; i++) {
+      const a = (i / count2) * Math.PI * 2 + 0.5
+      const jit = (Math.sin(i * 3.7) + 1) / 2
+      arr.push({
+        x: Math.cos(a) * (ring2 + jit * 2.2),
+        z: Math.sin(a) * (ring2 + jit * 2.2),
+        scale: 1.1 + jit * 0.6,
+        hue: (i + 1) % 3,
+      })
     }
     return arr
   }, [])
 
-  // Warm palette cycled across the ridges — sienna, ochre, rust, sage-olive, plum
-  const colors = ['#9e4422', '#b76a36', '#8d3a1d', '#7a6b3a', '#6f5747']
+  const foliage = ['#4e6d3a', '#5c7d44', '#426032']
+  const trunk = '#5a3d26'
 
   return (
     <group>
-      {peaks.map((p, i) => (
-        <mesh key={i} position={[p.x, p.h / 2, p.z]}>
-          <coneGeometry args={[0.9 + (i % 3) * 0.3, p.h, 5]} />
-          <meshStandardMaterial
-            color={colors[p.hueIdx]}
-            roughness={0.9}
-            metalness={0}
-            emissive="#4a2610"
-            emissiveIntensity={0.08}
-          />
-        </mesh>
+      {trees.map((t, i) => (
+        <group key={i} position={[t.x, 0, t.z]} scale={t.scale}>
+          {/* Trunk */}
+          <mesh position={[0, 0.5, 0]}>
+            <cylinderGeometry args={[0.12, 0.18, 1, 8]} />
+            <meshStandardMaterial color={trunk} roughness={0.95} />
+          </mesh>
+          {/* Foliage — two stacked blobs */}
+          <mesh position={[0, 1.5, 0]}>
+            <sphereGeometry args={[0.95, 12, 10]} />
+            <meshStandardMaterial color={foliage[t.hue]} roughness={0.95} />
+          </mesh>
+          <mesh position={[0.2, 2.1, -0.1]}>
+            <sphereGeometry args={[0.65, 10, 8]} />
+            <meshStandardMaterial color={foliage[(t.hue + 1) % 3]} roughness={0.95} />
+          </mesh>
+        </group>
       ))}
     </group>
   )
 }
 
-// ── "YOU" beam — terracotta pillar ──────────────────────
-function YouBeam() {
-  const ref = useRef()
-  useFrame(({ clock }) => {
-    if (ref.current) {
-      const t = clock.getElapsedTime()
-      ref.current.material.opacity = 0.4 + Math.sin(t * 2) * 0.2
-    }
-  })
+// ── "YOU" — your own avatar standing on the quad ────────
+function YouAvatar({ currentUser }) {
+  const accent = currentUser.avatarConfig
+    ? GRADIENT_COLORS[currentUser.avatarConfig.bgIndex ?? 0]
+    : '#c5532c'
+
   return (
     <group position={[0, 0, 0]}>
+      {/* Pulsing ground ring */}
+      <PulseRing color={accent} />
+
+      {/* Ground shadow */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+        <ringGeometry args={[0.55, 0.7, 32]} />
+        <meshBasicMaterial color={accent} transparent opacity={0.8} />
+      </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
-        <circleGeometry args={[0.7, 32]} />
-        <meshBasicMaterial color="#c5532c" transparent opacity={0.85} />
+        <circleGeometry args={[0.55, 32]} />
+        <meshBasicMaterial color={accent} transparent opacity={0.28} />
       </mesh>
-      <mesh position={[0, 1.5, 0]}>
-        <cylinderGeometry args={[0.15, 0.25, 3, 16]} />
-        <meshStandardMaterial color="#c5532c" emissive="#e8a488" emissiveIntensity={1.8} toneMapped={false} />
-      </mesh>
-      <mesh ref={ref} position={[0, 4, 0]}>
-        <cylinderGeometry args={[0.05, 0.4, 8, 16, 1, true]} />
-        <meshBasicMaterial color="#e0775a" transparent opacity={0.5} side={THREE.DoubleSide} depthWrite={false} />
-      </mesh>
-      <Html position={[0, 3.4, 0]} center distanceFactor={8} style={{ pointerEvents: 'none' }}>
-        <div style={{
-          fontFamily: "'Geist Mono', ui-monospace, monospace",
-          color: '#c5532c',
-          fontWeight: 700,
-          fontSize: 10,
-          letterSpacing: 3,
-          textShadow: '0 1px 0 #fff8ea, 0 0 10px rgba(197,83,44,0.4)',
-          whiteSpace: 'nowrap',
-          textTransform: 'uppercase',
-        }}>
-          you
-        </div>
-      </Html>
+
+      <Float speed={1.2} rotationIntensity={0} floatIntensity={0.25}>
+        <Html position={[0, 1.15, 0]} center distanceFactor={6.5} style={{ pointerEvents: 'none' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            {currentUser.avatarConfig
+              ? <VibeAvatar config={currentUser.avatarConfig} size={62} />
+              : <div style={{
+                  width: 62, height: 62, borderRadius: '50%',
+                  background: accent, color: '#fff8ea',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700, fontSize: 20,
+                  boxShadow: `0 8px 22px -6px ${accent}cc`,
+                }}>?</div>
+            }
+            <span style={{
+              fontFamily: "'Geist Mono', ui-monospace, monospace",
+              color: accent,
+              fontWeight: 700,
+              fontSize: 10,
+              letterSpacing: 3,
+              textShadow: '0 1px 0 #fff8ea',
+              textTransform: 'uppercase',
+              background: 'rgba(255,248,234,0.85)',
+              padding: '2px 8px',
+              borderRadius: 999,
+              border: `1px solid ${accent}`,
+            }}>
+              you
+            </span>
+          </div>
+        </Html>
+      </Float>
     </group>
   )
 }
 
-// ── Floating avatar bubble ──────────────────────────────
+function PulseRing({ color }) {
+  const ref = useRef()
+  useFrame(({ clock }) => {
+    if (!ref.current) return
+    const t = (clock.getElapsedTime() % 2.5) / 2.5
+    ref.current.scale.set(1 + t * 2, 1 + t * 2, 1)
+    ref.current.material.opacity = 0.45 * (1 - t)
+  })
+  return (
+    <mesh ref={ref} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.06, 0]}>
+      <ringGeometry args={[0.55, 0.66, 48]} />
+      <meshBasicMaterial color={color} transparent opacity={0.4} />
+    </mesh>
+  )
+}
+
+// ── Avatar token — a person standing on the quad ────────
 function UserAvatar({ user, streak, onClick }) {
-  const floatHeight = user.energy === 'high' ? 2.6 : user.energy === 'low' ? 1.8 : 2.2
+  const floatHeight = user.energy === 'high' ? 1.35 : user.energy === 'low' ? 1.0 : 1.18
   const floatSpeed = user.energy === 'high' ? 2.2 : user.energy === 'low' ? 1.1 : 1.6
   const [hovered, setHovered] = useState(false)
   const accent = user.avatarConfig
@@ -154,18 +198,18 @@ function UserAvatar({ user, streak, onClick }) {
     <group position={worldPos}>
       {/* Ground shadow / pin */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <ringGeometry args={[0.4, 0.5, 32]} />
-        <meshBasicMaterial color={accent} transparent opacity={0.75} />
+        <ringGeometry args={[0.38, 0.48, 32]} />
+        <meshBasicMaterial color={accent} transparent opacity={0.7} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
-        <circleGeometry args={[0.4, 32]} />
-        <meshBasicMaterial color={accent} transparent opacity={0.22} />
+        <circleGeometry args={[0.38, 32]} />
+        <meshBasicMaterial color="#1f1712" transparent opacity={0.18} />
       </mesh>
 
-      <Float speed={floatSpeed} rotationIntensity={0} floatIntensity={0.6}>
+      <Float speed={floatSpeed} rotationIntensity={0} floatIntensity={0.25}>
         <group position={[0, floatHeight, 0]}>
           <Html
-            center distanceFactor={7} zIndexRange={[0, 10]}
+            center distanceFactor={6.5} zIndexRange={[0, 10]}
             style={{ pointerEvents: 'auto' }}
           >
             <motion.div
@@ -242,41 +286,43 @@ function UserAvatar({ user, streak, onClick }) {
             </motion.div>
           </Html>
 
-          {/* Tether */}
-          <mesh position={[0, -floatHeight / 2, 0]}>
-            <cylinderGeometry args={[0.015, 0.015, floatHeight, 8]} />
-            <meshBasicMaterial color={accent} transparent opacity={0.45} />
-          </mesh>
         </group>
       </Float>
     </group>
   )
 }
 
-// ── Warm ground with subtle grid ────────────────────────
+// ── Grass ground — UW Madison quad ──────────────────────
 function Ground() {
   return (
     <>
+      {/* Base grass */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} receiveShadow>
-        <planeGeometry args={[80, 80, 1, 1]} />
-        <meshStandardMaterial color="#e8d5b5" roughness={1} metalness={0} />
+        <planeGeometry args={[90, 90, 1, 1]} />
+        <meshStandardMaterial color="#6f9354" roughness={1} metalness={0} />
       </mesh>
-      <gridHelper args={[40, 40, '#b8895e', '#d9bd91']} position={[0, 0, 0]} />
-      {/* Soft central warmth */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
-        <circleGeometry args={[11, 64]} />
-        <meshBasicMaterial color="#cd8a3b" transparent opacity={0.12} />
+      {/* Softer grass patch */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, 0]}>
+        <circleGeometry args={[22, 64]} />
+        <meshBasicMaterial color="#8ba96d" transparent opacity={0.45} />
       </mesh>
+      {/* Warmer sunny patch under you */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
+        <circleGeometry args={[10, 64]} />
+        <meshBasicMaterial color="#cbd982" transparent opacity={0.35} />
+      </mesh>
+      {/* Faint grid — like pathways on the quad */}
+      <gridHelper args={[44, 22, '#4f6b3a', '#5c7d44']} position={[0, 0.002, 0]} />
     </>
   )
 }
 
-// ── Warm sky dome — sunset gradient ─────────────────────
+// ── Daylight sky dome — soft campus afternoon ───────────
 function SkyDome() {
   const uniforms = useMemo(() => ({
-    top:    { value: new THREE.Color('#f7efe1') },
-    middle: { value: new THREE.Color('#f1c79c') },
-    bottom: { value: new THREE.Color('#e8a478') },
+    top:    { value: new THREE.Color('#b8d3e0') },
+    middle: { value: new THREE.Color('#e8ddc2') },
+    bottom: { value: new THREE.Color('#d1cd9a') },
   }), [])
 
   return (
@@ -391,20 +437,20 @@ export default function SpatialRadar({ currentUser, users, streaks = {}, onBubbl
         gl={{ antialias: true, alpha: false }}
         style={{ position: 'absolute', inset: 0 }}
       >
-        <color attach="background" args={['#f7efe1']} />
-        <fog attach="fog" args={['#f1c79c', 20, 48]} />
+        <color attach="background" args={['#e8ddc2']} />
+        <fog attach="fog" args={['#d8e3c6', 22, 50]} />
 
-        <ambientLight intensity={0.7} color="#fff1d9" />
-        <directionalLight position={[8, 15, 8]} intensity={1.2} color="#ffd9a8" castShadow />
-        <pointLight position={[0, 4, 0]} intensity={1.4} color="#e8a478" distance={20} />
+        <ambientLight intensity={0.85} color="#fff4da" />
+        <directionalLight position={[8, 16, 6]} intensity={1.1} color="#fff0cc" castShadow />
+        <pointLight position={[0, 5, 0]} intensity={0.9} color="#f3d99a" distance={22} />
 
         <Suspense fallback={null}>
           <SkyDome />
           <Ground />
           <RadarRings />
           <RadarSweep />
-          <TerrainRidges />
-          <YouBeam />
+          <CampusTrees />
+          <YouAvatar currentUser={currentUser} />
           {users.map(u => (
             <UserAvatar
               key={u.id}

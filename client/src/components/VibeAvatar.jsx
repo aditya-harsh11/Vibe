@@ -72,10 +72,48 @@ export function buildAvatarUrl(config = DEFAULT_AVATAR, size = 96) {
   if (config.accessory === 'cap') {
     params.set('top', 'winterHat1,winterHat02,winterHat03,winterHat04')
   }
-  if (config.accessory === 'headphones') {
-    params.set('top', 'shortHairShortFlat,shortHairShortWaved,shortHairShortCurly,shortHairShortRound')
-  }
   return `https://api.dicebear.com/9.x/avataaars/svg?${params.toString()}`
+}
+
+function HeadphonesOverlay({ accent, size }) {
+  return (
+    <svg
+      viewBox="0 0 100 60"
+      style={{
+        position: 'absolute',
+        top: '2%',
+        left: '8%',
+        width: '84%',
+        height: '46%',
+        pointerEvents: 'none',
+        filter: `drop-shadow(0 ${size * 0.02}px ${size * 0.04}px rgba(31,23,18,0.35))`,
+      }}
+    >
+      {/* Band */}
+      <path
+        d="M 14 42 Q 50 -4 86 42"
+        stroke={accent}
+        strokeWidth="7"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Inner highlight on band */}
+      <path
+        d="M 20 38 Q 50 4 80 38"
+        stroke="#fff8ea"
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+        opacity="0.55"
+      />
+      {/* Left cup */}
+      <rect x="6"  y="32" width="16" height="22" rx="5" fill={accent} stroke="#1f1712" strokeWidth="0.8" />
+      <circle cx="14" cy="43" r="3" fill="#1f1712" opacity="0.45" />
+      {/* Right cup */}
+      <rect x="78" y="32" width="16" height="22" rx="5" fill={accent} stroke="#1f1712" strokeWidth="0.8" />
+      <circle cx="86" cy="43" r="3" fill="#1f1712" opacity="0.45" />
+    </svg>
+  )
 }
 
 export function VibeAvatar({ config = DEFAULT_AVATAR, size = 48, ring = true }) {
@@ -103,6 +141,9 @@ export function VibeAvatar({ config = DEFAULT_AVATAR, size = 48, ring = true }) 
         draggable={false}
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
       />
+      {config.accessory === 'headphones' && (
+        <HeadphonesOverlay accent={accent} size={size} />
+      )}
       <div
         style={{
           position: 'absolute',
