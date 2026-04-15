@@ -6,24 +6,17 @@ import { VibeAvatar } from './VibeAvatar'
 const GAMES = [
   {
     id: 'trivia',
-    tag: 'trv',
-    label: 'vibe trivia',
-    desc: 'claude builds questions from both your interests',
+    tag: 'pop',
+    label: 'pop quiz',
+    desc: 'movies, music, food, memes — no cs allowed',
     color: '#6f8b5e',
   },
   {
     id: 'hottakes',
     tag: 'hot',
     label: 'hot takes',
-    desc: 'swipe on spicy opinions — see if you agree',
+    desc: 'pineapple pizza, 8am classes, crocs as formalwear',
     color: '#c5532c',
-  },
-  {
-    id: 'thisorthat',
-    tag: 'tot',
-    label: 'this or that',
-    desc: 'would you rather — reveal your true vibe',
-    color: '#cd8a3b',
   },
 ]
 

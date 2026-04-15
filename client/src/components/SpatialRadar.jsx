@@ -112,11 +112,74 @@ function CampusTrees() {
   )
 }
 
-// ── "YOU" — your own avatar standing on the quad ────────
+// ── 3D person body — simple humanoid placeholder ────────
+function PersonBody({ accent, skin = '#d9b38a', pants = '#3a2a1e', tilt = 0 }) {
+  return (
+    <group rotation={[0, tilt, 0]}>
+      {/* Left leg */}
+      <mesh position={[-0.13, 0.4, 0]} castShadow>
+        <cylinderGeometry args={[0.1, 0.1, 0.8, 12]} />
+        <meshStandardMaterial color={pants} roughness={0.9} />
+      </mesh>
+      {/* Right leg */}
+      <mesh position={[0.13, 0.4, 0]} castShadow>
+        <cylinderGeometry args={[0.1, 0.1, 0.8, 12]} />
+        <meshStandardMaterial color={pants} roughness={0.9} />
+      </mesh>
+      {/* Shoes */}
+      <mesh position={[-0.13, 0.04, 0.05]}>
+        <boxGeometry args={[0.16, 0.08, 0.22]} />
+        <meshStandardMaterial color="#1f1712" roughness={0.9} />
+      </mesh>
+      <mesh position={[0.13, 0.04, 0.05]}>
+        <boxGeometry args={[0.16, 0.08, 0.22]} />
+        <meshStandardMaterial color="#1f1712" roughness={0.9} />
+      </mesh>
+      {/* Torso (shirt in accent color) */}
+      <mesh position={[0, 1.12, 0]} castShadow>
+        <capsuleGeometry args={[0.26, 0.5, 6, 16]} />
+        <meshStandardMaterial color={accent} roughness={0.75} />
+      </mesh>
+      {/* Arms */}
+      <mesh position={[-0.33, 1.15, 0]} rotation={[0, 0, 0.18]} castShadow>
+        <capsuleGeometry args={[0.075, 0.55, 4, 10]} />
+        <meshStandardMaterial color={accent} roughness={0.8} />
+      </mesh>
+      <mesh position={[0.33, 1.15, 0]} rotation={[0, 0, -0.18]} castShadow>
+        <capsuleGeometry args={[0.075, 0.55, 4, 10]} />
+        <meshStandardMaterial color={accent} roughness={0.8} />
+      </mesh>
+      {/* Neck */}
+      <mesh position={[0, 1.55, 0]}>
+        <cylinderGeometry args={[0.08, 0.09, 0.12, 10]} />
+        <meshStandardMaterial color={skin} roughness={0.9} />
+      </mesh>
+      {/* Head */}
+      <mesh position={[0, 1.78, 0]} castShadow>
+        <sphereGeometry args={[0.26, 20, 18]} />
+        <meshStandardMaterial color={skin} roughness={0.9} />
+      </mesh>
+    </group>
+  )
+}
+
+// Deterministic variety per user
+function hashCode(s) {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+const SKIN_TONES = ['#f0d2b3', '#e8c5a0', '#d9a479', '#c48960', '#a66b47', '#8a4f2f']
+const PANTS_TONES = ['#3a2a1e', '#2a3340', '#4a4034', '#5a4028', '#2d2a28']
+
+// ── "YOU" — your 3D self on the quad ────────────────────
 function YouAvatar({ currentUser }) {
   const accent = currentUser.avatarConfig
     ? GRADIENT_COLORS[currentUser.avatarConfig.bgIndex ?? 0]
     : '#c5532c'
+  const seedHash = hashCode(currentUser.name || 'you')
+  const skin = SKIN_TONES[seedHash % SKIN_TONES.length]
+  const pants = PANTS_TONES[(seedHash >> 3) % PANTS_TONES.length]
 
   return (
     <group position={[0, 0, 0]}>
@@ -124,46 +187,39 @@ function YouAvatar({ currentUser }) {
       <PulseRing color={accent} />
 
       {/* Ground shadow */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <ringGeometry args={[0.55, 0.7, 32]} />
-        <meshBasicMaterial color={accent} transparent opacity={0.8} />
-      </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
-        <circleGeometry args={[0.55, 32]} />
-        <meshBasicMaterial color={accent} transparent opacity={0.28} />
+        <circleGeometry args={[0.5, 32]} />
+        <meshBasicMaterial color="#1f1712" transparent opacity={0.28} />
       </mesh>
 
-      <Float speed={1.2} rotationIntensity={0} floatIntensity={0.25}>
-        <Html position={[0, 1.15, 0]} center distanceFactor={6.5} style={{ pointerEvents: 'none' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            {currentUser.avatarConfig
-              ? <VibeAvatar config={currentUser.avatarConfig} size={62} />
-              : <div style={{
-                  width: 62, height: 62, borderRadius: '50%',
-                  background: accent, color: '#fff8ea',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 700, fontSize: 20,
-                  boxShadow: `0 8px 22px -6px ${accent}cc`,
-                }}>?</div>
-            }
-            <span style={{
-              fontFamily: "'Geist Mono', ui-monospace, monospace",
-              color: accent,
-              fontWeight: 700,
-              fontSize: 10,
-              letterSpacing: 3,
-              textShadow: '0 1px 0 #fff8ea',
-              textTransform: 'uppercase',
-              background: 'rgba(255,248,234,0.85)',
-              padding: '2px 8px',
-              borderRadius: 999,
-              border: `1px solid ${accent}`,
-            }}>
-              you
-            </span>
-          </div>
-        </Html>
-      </Float>
+      <PersonBody accent={accent} skin={skin} pants={pants} />
+
+      {/* Face billboard — your avatar as the head */}
+      <Html position={[0, 1.78, 0.26]} center distanceFactor={7} style={{ pointerEvents: 'none' }} zIndexRange={[20, 30]}>
+        {currentUser.avatarConfig
+          ? <VibeAvatar config={currentUser.avatarConfig} size={46} ring={false} />
+          : null}
+      </Html>
+
+      {/* "YOU" label above head */}
+      <Html position={[0, 2.45, 0]} center distanceFactor={7} style={{ pointerEvents: 'none' }}>
+        <span style={{
+          fontFamily: "'Geist Mono', ui-monospace, monospace",
+          color: accent,
+          fontWeight: 700,
+          fontSize: 9,
+          letterSpacing: 3,
+          textTransform: 'uppercase',
+          background: 'rgba(255,248,234,0.92)',
+          padding: '3px 9px',
+          borderRadius: 999,
+          border: `1px solid ${accent}`,
+          whiteSpace: 'nowrap',
+          boxShadow: `0 4px 10px -4px ${accent}70`,
+        }}>
+          you
+        </span>
+      </Html>
     </group>
   )
 }
@@ -184,110 +240,122 @@ function PulseRing({ color }) {
   )
 }
 
-// ── Avatar token — a person standing on the quad ────────
+// ── 3D person standing on the quad ──────────────────────
 function UserAvatar({ user, streak, onClick }) {
-  const floatHeight = user.energy === 'high' ? 1.35 : user.energy === 'low' ? 1.0 : 1.18
-  const floatSpeed = user.energy === 'high' ? 2.2 : user.energy === 'low' ? 1.1 : 1.6
   const [hovered, setHovered] = useState(false)
   const accent = user.avatarConfig
     ? GRADIENT_COLORS[user.avatarConfig.bgIndex ?? 0]
     : user.avatarColor || '#c5532c'
   const worldPos = locToWorld(user.location)
+  const seedHash = hashCode(user.id || user.name || 'u')
+  const skin = SKIN_TONES[seedHash % SKIN_TONES.length]
+  const pants = PANTS_TONES[(seedHash >> 3) % PANTS_TONES.length]
+  const tilt = ((seedHash % 360) / 360) * Math.PI * 2
+  const bodyRef = useRef()
+
+  // Idle sway
+  useFrame(({ clock }) => {
+    if (!bodyRef.current) return
+    const t = clock.getElapsedTime() + seedHash * 0.01
+    const ampl = user.energy === 'high' ? 0.06 : user.energy === 'low' ? 0.02 : 0.04
+    bodyRef.current.position.y = Math.sin(t * 1.3) * ampl
+    bodyRef.current.rotation.y = Math.sin(t * 0.5) * 0.08
+  })
 
   return (
     <group position={worldPos}>
-      {/* Ground shadow / pin */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <ringGeometry args={[0.38, 0.48, 32]} />
-        <meshBasicMaterial color={accent} transparent opacity={0.7} />
-      </mesh>
+      {/* Ground shadow */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.04, 0]}>
-        <circleGeometry args={[0.38, 32]} />
-        <meshBasicMaterial color="#1f1712" transparent opacity={0.18} />
+        <circleGeometry args={[0.42, 32]} />
+        <meshBasicMaterial color="#1f1712" transparent opacity={0.22} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+        <ringGeometry args={[0.42, 0.5, 32]} />
+        <meshBasicMaterial color={accent} transparent opacity={hovered ? 0.7 : 0.4} />
       </mesh>
 
-      <Float speed={floatSpeed} rotationIntensity={0} floatIntensity={0.25}>
-        <group position={[0, floatHeight, 0]}>
-          <Html
-            center distanceFactor={6.5} zIndexRange={[0, 10]}
-            style={{ pointerEvents: 'auto' }}
-          >
-            <motion.div
-              whileHover={{ scale: 1.08, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              onHoverStart={() => setHovered(true)}
-              onHoverEnd={() => setHovered(false)}
-              onClick={(e) => { e.stopPropagation(); onClick(user) }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '6px 14px 6px 6px',
-                borderRadius: 999,
-                background: '#fdf6e9',
-                border: `1.5px solid ${accent}`,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                position: 'relative',
-                boxShadow: `0 10px 28px -8px ${accent}99, 0 1px 0 rgba(255,248,234,0.8) inset`,
-                fontFamily: "'Geist', sans-serif",
-              }}
-            >
-              {user.avatarConfig
-                ? <VibeAvatar config={user.avatarConfig} size={44} ring={false} />
-                : <div style={{
-                    width: 44, height: 44, borderRadius: '50%',
-                    background: user.avatarColor, color: '#fff8ea',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 700, fontSize: 14,
-                  }}>{user.avatar}</div>
-              }
-              <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                <span style={{
-                  color: accent, fontSize: 10, fontWeight: 700,
-                  fontFamily: "'Geist Mono', monospace", letterSpacing: 1, textTransform: 'uppercase',
-                }}>
-                  {user.name.split(' ')[0]} · {user.distance}ft
-                </span>
-                <span style={{
-                  color: '#1f1712',
-                  fontSize: 12,
-                  fontWeight: 500,
-                  maxWidth: hovered ? 230 : 155,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  transition: 'max-width 0.2s',
-                  fontFamily: "'Fraunces', serif",
-                  fontStyle: 'italic',
-                }}>
-                  {hovered ? user.vibe : user.vibe.slice(0, 30) + (user.vibe.length > 30 ? '…' : '')}
-                </span>
-              </div>
+      {/* 3D body with idle sway — click target wraps it */}
+      <group
+        ref={bodyRef}
+        onClick={(e) => { e.stopPropagation(); onClick(user) }}
+        onPointerOver={(e) => { e.stopPropagation(); setHovered(true); document.body.style.cursor = 'pointer' }}
+        onPointerOut={() => { setHovered(false); document.body.style.cursor = 'auto' }}
+      >
+        <PersonBody accent={accent} skin={skin} pants={pants} tilt={tilt} />
+      </group>
 
-              {streak > 0 && (
-                <div style={{
-                  position: 'absolute',
-                  top: -8, right: -6,
-                  padding: '2px 7px',
-                  borderRadius: 999,
-                  background: streak >= 7
-                    ? 'linear-gradient(135deg, #c5532c, #a23543)'
-                    : 'linear-gradient(135deg, #cd8a3b, #c5532c)',
-                  color: '#fff8ea',
-                  fontSize: 9,
-                  fontWeight: 800,
-                  fontFamily: "'Geist Mono', monospace",
-                  letterSpacing: 0.5,
-                  boxShadow: `0 4px 10px ${streak >= 7 ? '#a23543' : '#cd8a3b'}aa`,
-                }}>
-                  {streak}d
-                </div>
-              )}
-            </motion.div>
-          </Html>
+      {/* Face billboard — avatar as head overlay */}
+      <Html position={[0, 1.78, 0.27]} center distanceFactor={7} style={{ pointerEvents: 'none' }} zIndexRange={[20, 30]}>
+        {user.avatarConfig
+          ? <VibeAvatar config={user.avatarConfig} size={44} ring={false} />
+          : null}
+      </Html>
 
-        </group>
-      </Float>
+      {/* Name + vibe pill floating above head */}
+      <Html position={[0, 2.5, 0]} center distanceFactor={7} style={{ pointerEvents: 'auto' }} zIndexRange={[10, 20]}>
+        <motion.div
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.96 }}
+          onHoverStart={() => setHovered(true)}
+          onHoverEnd={() => setHovered(false)}
+          onClick={(e) => { e.stopPropagation(); onClick(user) }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 2,
+            padding: '4px 12px 5px',
+            borderRadius: 999,
+            background: 'rgba(255,248,234,0.96)',
+            border: `1.5px solid ${accent}`,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            position: 'relative',
+            boxShadow: `0 8px 20px -8px ${accent}99`,
+            fontFamily: "'Geist', sans-serif",
+          }}
+        >
+          <span style={{
+            color: accent, fontSize: 9, fontWeight: 700,
+            fontFamily: "'Geist Mono', monospace", letterSpacing: 1.5, textTransform: 'uppercase',
+          }}>
+            {user.name.split(' ')[0]} · {user.distance}ft
+          </span>
+          <span style={{
+            color: '#1f1712',
+            fontSize: 11,
+            fontWeight: 500,
+            maxWidth: hovered ? 220 : 150,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            transition: 'max-width 0.2s',
+            fontFamily: "'Fraunces', serif",
+            fontStyle: 'italic',
+          }}>
+            {hovered ? user.vibe : user.vibe.slice(0, 28) + (user.vibe.length > 28 ? '…' : '')}
+          </span>
+
+          {streak > 0 && (
+            <div style={{
+              position: 'absolute',
+              top: -7, right: -6,
+              padding: '2px 6px',
+              borderRadius: 999,
+              background: streak >= 7
+                ? 'linear-gradient(135deg, #c5532c, #a23543)'
+                : 'linear-gradient(135deg, #cd8a3b, #c5532c)',
+              color: '#fff8ea',
+              fontSize: 9,
+              fontWeight: 800,
+              fontFamily: "'Geist Mono', monospace",
+              letterSpacing: 0.5,
+              boxShadow: `0 4px 10px ${streak >= 7 ? '#a23543' : '#cd8a3b'}aa`,
+            }}>
+              {streak}d
+            </div>
+          )}
+        </motion.div>
+      </Html>
     </group>
   )
 }

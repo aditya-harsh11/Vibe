@@ -1,10 +1,30 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, Shuffle } from 'lucide-react'
+import { ChevronRight, Shuffle, Headphones, Glasses, Minus, Sparkles } from 'lucide-react'
 import { VibeAvatar, DEFAULT_AVATAR, buildAvatarUrl } from './VibeAvatar'
 
 const ACCESSORIES = ['none', 'headphones', 'glasses', 'cap', 'star']
-const ACCESSORY_LABELS = { none: '—', headphones: 'hph', glasses: 'gls', cap: 'cap', star: 'shd' }
+
+function CapIcon({ size = 18, color = 'currentColor' }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 14 Q 3 6 12 6 Q 21 6 21 14" />
+      <path d="M3 14 L 21 14" />
+      <path d="M21 14 L 23 16" />
+    </svg>
+  )
+}
+
+const ACCESSORY_ICON = {
+  none: (p) => <Minus {...p} />,
+  headphones: (p) => <Headphones {...p} />,
+  glasses: (p) => <Glasses {...p} />,
+  cap: (p) => <CapIcon {...p} />,
+  star: (p) => <Sparkles {...p} />,
+}
+const ACCESSORY_LABEL = {
+  none: 'clean', headphones: 'cans', glasses: 'specs', cap: 'cap', star: 'shades',
+}
 
 // Warm editorial palette — each "aura" is a hand-tuned color family
 const AURAS = [
@@ -221,28 +241,29 @@ export default function AvatarBuilder({ onDone }) {
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="w-full flex gap-2 justify-center flex-wrap"
               >
-                {ACCESSORIES.map((acc) => (
-                  <motion.button
-                    key={acc}
-                    whileHover={{ y: -2 }} whileTap={{ scale: 0.94 }}
-                    onClick={() => set('accessory', acc)}
-                    className="flex flex-col items-center gap-1 px-4 py-3 rounded-xl transition-all"
-                    style={{
-                      background: config.accessory === acc ? 'var(--cream)' : 'transparent',
-                      border: config.accessory === acc
-                        ? `2px solid ${aura.primary}`
-                        : '1px solid var(--line)',
-                      minWidth: 62,
-                    }}
-                  >
-                    <span className="font-mono text-xs font-bold tracking-wider" style={{ color: config.accessory === acc ? aura.primary : 'var(--ink-soft)' }}>
-                      {ACCESSORY_LABELS[acc]}
-                    </span>
-                    <span className="text-[10px] lowercase" style={{ color: 'var(--ink-muted)' }}>
-                      {acc === 'none' ? 'clean' : acc}
-                    </span>
-                  </motion.button>
-                ))}
+                {ACCESSORIES.map((acc) => {
+                  const selected = config.accessory === acc
+                  const Icon = ACCESSORY_ICON[acc]
+                  return (
+                    <motion.button
+                      key={acc}
+                      whileHover={{ y: -2 }} whileTap={{ scale: 0.94 }}
+                      onClick={() => set('accessory', acc)}
+                      className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-xl transition-all"
+                      style={{
+                        background: selected ? 'var(--cream)' : 'transparent',
+                        border: selected ? `2px solid ${aura.primary}` : '1px solid var(--line)',
+                        minWidth: 66,
+                      }}
+                    >
+                      <Icon size={22} color={selected ? aura.primary : 'var(--ink-soft)'} />
+                      <span className="font-mono text-[10px] tracking-wider uppercase"
+                        style={{ color: selected ? aura.primary : 'var(--ink-muted)' }}>
+                        {ACCESSORY_LABEL[acc]}
+                      </span>
+                    </motion.button>
+                  )
+                })}
               </motion.div>
             )}
 

@@ -88,7 +88,7 @@ router.post('/pulse-coach', async (req, res) => {
   }
 })
 
-// POST /api/claude/trivia
+// POST /api/claude/trivia — "pop quiz"
 // Returns: { questions: [{ q, options, answer, topic }] }
 router.post('/trivia', async (req, res) => {
   const { currentUser, matchedUser } = req.body
@@ -96,15 +96,24 @@ router.post('/trivia', async (req, res) => {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 700,
-      system: "You generate trivia questions for two people to play together. Questions should span BOTH people's interests so each person has home turf and challenge rounds. Return ONLY raw JSON, no markdown.",
+      system: "You generate FUN pop-quiz questions two college students play together for laughs — strictly pop culture, music, movies, TV, food, travel, sports, internet/meme culture, and absurd hypotheticals. AVOID anything academic, technical, or CS-related. AVOID political, religious, or polarizing topics. Keep tone playful. Return ONLY raw JSON, no markdown.",
       messages: [{
         role: 'user',
-        content: `Generate 5 trivia questions for these two people to play together:
+        content: `Generate 5 playful pop-quiz questions for two strangers meeting on a college quad.
 
-Person A: ${currentUser.name} — interests: ${(currentUser.interests || []).join(', ')}, vibe: "${currentUser.vibe}"
-Person B: ${matchedUser.name} — interests: ${(matchedUser.interests || []).join(', ')}, vibe: "${matchedUser.vibe}"
+Person A: ${currentUser.name}
+Person B: ${matchedUser.name}
 
-Mix questions from both their interests. Make them fun and specific — not generic trivia.
+Mix across these fun topics — NEVER academic/CS/technical:
+  • iconic movie/TV moments (Fast & Furious, Bridgerton, Bluey, Succession, etc.)
+  • music / lyrics / album trivia (Taylor, Kendrick, BTS, Beyoncé, Arctic Monkeys…)
+  • food & drink (what's actually in boba? is pineapple-pizza a crime?)
+  • sports & gameday culture (Madison/Badgers-friendly if natural)
+  • travel & landmarks (what city has this skyline?)
+  • internet/meme history, viral moments
+  • absurd hypotheticals with a real-ish correct answer
+
+Questions should be GUESSABLE for non-experts. Keep options short. Vary difficulty.
 Return raw JSON only:
 {
   "questions": [
@@ -112,7 +121,7 @@ Return raw JSON only:
       "q": "<the question>",
       "options": ["<A>", "<B>", "<C>", "<D>"],
       "answer": <0-3 index of correct option>,
-      "topic": "<short topic label, e.g. 'distributed systems'>"
+      "topic": "<short topic label, e.g. '90s movies' or 'pop music'>"
     }
   ]
 }`,
@@ -134,24 +143,24 @@ router.post('/hottakes', async (req, res) => {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 400,
-      system: "You generate spicy but fun opinion statements tailored to two specific people. The hot takes should be relevant to their actual interests and vibes — not generic. Return ONLY raw JSON, no markdown.",
+      system: "You write FUN, playful hot-takes for two college students to debate for laughs. Focus on food, music, movies/TV, dating, fashion, campus life, travel, and internet culture. AVOID anything political, religious, identity-based, academic, or CS/tech-related. Opinions should be argue-able, not offensive. Return ONLY raw JSON, no markdown.",
       messages: [{
         role: 'user',
-        content: `Generate 5 spicy hot takes for these two people to agree/disagree on:
+        content: `Generate 5 spicy-but-fun hot takes for two strangers on a college quad to agree/disagree on.
 
-Person A: ${currentUser.name} — interests: ${(currentUser.interests || []).join(', ')}, vibe: "${currentUser.vibe}"
-Person B: ${matchedUser.name} — interests: ${(matchedUser.interests || []).join(', ')}, vibe: "${matchedUser.vibe}"
+Topics to draw from (mix them up):
+  • food hills to die on (pineapple pizza, ranch on everything, cold leftover pizza)
+  • concert/album/artist opinions (stadium tours are overrated, auto-tune is fine)
+  • movie/TV takes (remakes beat originals, letterboxd is just yelp for film bros)
+  • campus/college life (8am classes should be illegal, dining-hall chicken tenders tier list)
+  • dating / texting / apps (grayness of read receipts)
+  • fashion / aesthetic (crocs are formalwear)
+  • travel / hometown rivalries  • internet/meme takes
 
-Make the takes specific to their domains — not generic life advice. Provocative but not offensive. Fun to debate.
+Each take should be ONE clear opinion sentence, 10–18 words. Playful and punchy. No hedging.
 Return raw JSON only:
 {
-  "takes": [
-    "<hot take 1>",
-    "<hot take 2>",
-    "<hot take 3>",
-    "<hot take 4>",
-    "<hot take 5>"
-  ]
+  "takes": ["<take 1>", "<take 2>", "<take 3>", "<take 4>", "<take 5>"]
 }`,
       }],
     })
