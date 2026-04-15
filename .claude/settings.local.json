@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "Bash(npm list *)",
+      "Bash(npm install *)",
+      "Bash(npm create *)",
+      "Bash(npx tailwindcss *)",
+      "Bash(npm run *)",
+      "Bash(timeout 4 node server/index.js)",
+      "Bash(node -e ' *)",
+      "Bash(node --check server/index.js)",
+      "Bash(node --check server/routes/claude.js)"
+    ]
+  }
+}
