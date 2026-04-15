@@ -11,10 +11,10 @@ router.post('/match', async (req, res) => {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 400,
-      system: "You are the social brain of Vibe, a spatial social app. Analyze two people's vibes and find genuine human connection points. Return ONLY valid JSON with no markdown wrapper, no code fences, no explanation. Be witty but real — never generic.",
+      system: "You are the social brain of Vibe, a casual spatial social app for college students. Find the FUN, everyday reasons two strangers should say hi — shared taste in music/food/movies/nightlife/campus spots, overlapping hobbies, or chaotic serendipity. AVOID academic, thesis, study-buddy, or career framing. Tone is warm, playful, lowercase-y. Return ONLY valid JSON, no markdown wrapper, no explanation.",
       messages: [{
         role: 'user',
-        content: `Analyze these two people meeting in the same physical space right now:
+        content: `Two college students cross paths on campus right now. Find the casual human reason they'd click.
 
 Person A: ${currentUser.name}, ${currentUser.major}
 Their vibe today: "${currentUser.vibe}"
@@ -24,13 +24,15 @@ Person B: ${matchedUser.name}, ${matchedUser.major}
 Their vibe today: "${matchedUser.vibe}"
 Interests: ${(matchedUser.interests || []).join(', ')}
 
+Hooks should be concrete everyday stuff: "both big on iced matcha", "you'd agree pineapple pizza is fine", "both lowkey devastated by past lives", "trade lo-fi sample packs". NOT "both interested in [topic]" or study/thesis/career stuff.
+
 Return this exact JSON (no markdown, raw JSON only):
 {
   "score": <integer 0-100>,
-  "scoreLine": "<5-8 word punchy reason, e.g. 'Both drowning, different oceans'>",
-  "crossover": "<2-3 sentences on the real intersection — be specific>",
-  "hooks": ["<connection point 1>", "<connection point 2>"],
-  "connectionType": "<one of: Study Ally | Creative Collab | Serendipity Clash | Energy Sync | Curiosity Bridge>"
+  "scoreLine": "<5-8 words, punchy + fun, e.g. 'both chronically unwell about sally rooney'>",
+  "crossover": "<2-3 sentences on the real, casual intersection — be specific and fun, not academic>",
+  "hooks": ["<concrete connection 1>", "<concrete connection 2>"],
+  "connectionType": "<one of: Vibe Match | Creative Collab | Serendipity Clash | Energy Sync | Hidden Overlap>"
 }`,
       }],
     })
@@ -53,13 +55,13 @@ router.post('/icebreaker', async (req, res) => {
     const stream = anthropic.messages.stream({
       model: 'claude-sonnet-4-6',
       max_tokens: 150,
-      system: "You are the Vibe icebreaker engine. Generate ONE specific, witty opening line for two people meeting. Must reference their actual vibes — never generic. Max 2 sentences. Output text directly, no quotes, no preamble.",
+      system: "You are the Vibe icebreaker engine. Write ONE casual, specific opening line two college students would actually say to each other. Reference their actual vibes — music, movies, food, campus spots, shared hobbies. AVOID academic/study/thesis/career framing. Tone: warm, lowercase-y, natural. Max 2 sentences. Output text directly, no quotes, no preamble.",
       messages: [{
         role: 'user',
-        content: `Two people just walked within 5 feet of each other. Vibe Score: ${matchScore} (${connectionType}).
+        content: `Two students just crossed paths on the quad. Vibe Score: ${matchScore} (${connectionType}).
 ${currentUser.name}'s vibe: "${currentUser.vibe}"
 ${matchedUser.name}'s vibe: "${matchedUser.vibe}"
-Write the icebreaker ${currentUser.name} should say to ${matchedUser.name}. Specific, clever, not cringe.`,
+Write the opener ${currentUser.name} should walk up and say to ${matchedUser.name}. Specific, casual, sounds like something a real person says — not cringe, not formal, not academic.`,
       }],
     })
     stream.on('text', t => res.write(`data: ${t.replace(/\n/g, '\\n')}\n\n`))
@@ -78,7 +80,7 @@ router.post('/pulse-coach', async (req, res) => {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 100,
-      system: "You are Vibe's pulse coach. Take a raw vibe post and make it 30% more interesting and connectable — keep their voice. One sentence. Return raw JSON: { \"enhanced\": \"...\" } with no markdown.",
+      system: "You are Vibe's pulse coach. Take a raw vibe post and sharpen it ~30% — more specific, more evocative, still casual and lowercase-y. Keep it under 140 chars. Keep their voice exactly. Never make it academic/formal/CS-ish. Return raw JSON: { \"enhanced\": \"...\" } with no markdown.",
       messages: [{ role: 'user', content: `Original vibe: "${draftVibe}"\nMake it better — keep their voice.` }],
     })
     const text = response.content[0].text.trim().replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')

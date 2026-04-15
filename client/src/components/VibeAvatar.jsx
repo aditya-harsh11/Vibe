@@ -55,6 +55,10 @@ export function buildAvatarUrl(config = DEFAULT_AVATAR, size = 96) {
     backgroundColor: bg,
     backgroundType: 'gradientLinear',
     radius: '50',
+    // Lock to only happy expressions — no sad/concerned/grimace/scream
+    mouth: 'smile,twinkle,default,tongue',
+    eyes: 'default,happy,squint,wink,hearts',
+    eyebrows: 'default,defaultNatural,raisedExcited,raisedExcitedNatural,upDown,upDownNatural',
   })
 
   const accessoryMap = {

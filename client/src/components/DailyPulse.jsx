@@ -3,11 +3,11 @@ import { motion } from 'framer-motion'
 import { Sparkles, Send, Clock } from 'lucide-react'
 
 const PLACEHOLDER_VIBES = [
-  'Drowning in code — someone bring coffee and judgment',
-  "Open to literally anything that isn't my assignment right now",
-  "Need one person to convince me this idea isn't stupid",
-  'Currently vibrating at chaos frequency, ask me anything',
-  'Hyperfocused on something weird, ask me what',
+  'just got out of class and my brain is offline — pull me to chipotle',
+  '70 degrees on the terrace and i refuse to be productive today',
+  'new album dropped and i am emotionally unwell, need a walking buddy',
+  'craving a specific kind of chaos — willing to negotiate',
+  'badgers game tonight, trying to rally a crew',
 ]
 
 function getWindowInfo() {

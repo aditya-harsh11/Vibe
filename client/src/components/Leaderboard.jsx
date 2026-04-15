@@ -3,22 +3,22 @@ import { ArrowLeft, Zap, Star, Camera } from 'lucide-react'
 import { VibeAvatar, GRADIENT_COLORS } from './VibeAvatar'
 
 const LEADERBOARD = [
-  { rank: 1, name: 'Priya Sharma',  avatarConfig: { seed: 'priya-sharma-02',  bgIndex: 2, accessory: 'glasses' },
-    major: 'Data Science',         year: 'Senior',    xp: 3840, connections: 14, duoProofs: 9, streak: 12, badge: '✦ top connector' },
-  { rank: 2, name: 'Alex Torres',   avatarConfig: { seed: 'alex-torres-05',   bgIndex: 5, accessory: 'none' },
-    major: 'Computer Science',     year: 'Senior',    xp: 3210, connections: 11, duoProofs: 8, streak: 10, badge: '✶ deep vibes' },
+  { rank: 1, name: 'Priya Sharma',  avatarConfig: { seed: 'priya-sharma-02',  bgIndex: 2, accessory: 'star' },
+    major: 'Marketing',            year: 'Senior',    xp: 3840, connections: 14, duoProofs: 9, streak: 12, badge: '✦ top connector' },
+  { rank: 2, name: 'Alex Torres',   avatarConfig: { seed: 'alex-torres-05',   bgIndex: 5, accessory: 'glasses' },
+    major: 'Economics',            year: 'Senior',    xp: 3210, connections: 11, duoProofs: 8, streak: 10, badge: '✶ good hang' },
   { rank: 3, name: 'Jordan Park',   avatarConfig: { seed: 'jordan-park-01',   bgIndex: 1, accessory: 'cap' },
-    major: 'Mechanical Eng.',      year: 'Sophomore', xp: 2750, connections: 9,  duoProofs: 7, streak: 8,  badge: '∴ energy sync' },
+    major: 'Kinesiology',          year: 'Sophomore', xp: 2750, connections: 9,  duoProofs: 7, streak: 8,  badge: '∴ energy sync' },
   { rank: 4, name: 'Maya Chen',     avatarConfig: { seed: 'maya-chen-00',     bgIndex: 0, accessory: 'glasses' },
-    major: 'Computer Science',     year: 'Junior',    xp: 2300, connections: 8,  duoProofs: 5, streak: 7,  badge: null },
-  { rank: 5, name: 'Devon Walsh',   avatarConfig: { seed: 'devon-walsh-04',   bgIndex: 4, accessory: 'none' },
+    major: 'Film Studies',         year: 'Junior',    xp: 2300, connections: 8,  duoProofs: 5, streak: 7,  badge: null },
+  { rank: 5, name: 'Devon Walsh',   avatarConfig: { seed: 'devon-walsh-04',   bgIndex: 7, accessory: 'star' },
     major: 'Graphic Design',       year: 'Sophomore', xp: 1980, connections: 7,  duoProofs: 6, streak: 5,  badge: null },
-  { rank: 6, name: 'Sam Liu',       avatarConfig: { seed: 'sam-liu-07',       bgIndex: 7, accessory: 'headphones' },
+  { rank: 6, name: 'Sam Liu',       avatarConfig: { seed: 'sam-liu-07',       bgIndex: 4, accessory: 'headphones' },
     major: 'Music Production',     year: 'Freshman',  xp: 1640, connections: 6,  duoProofs: 4, streak: 6,  badge: null },
   { rank: 7, name: 'Riley Kim',     avatarConfig: { seed: 'riley-kim-06',     bgIndex: 6, accessory: 'none' },
     major: 'Psychology',           year: 'Junior',    xp: 1420, connections: 5,  duoProofs: 3, streak: 4,  badge: null },
-  { rank: 8, name: 'Nico Reyes',    avatarConfig: { seed: 'nico-reyes-03',    bgIndex: 3, accessory: 'star' },
-    major: 'Philosophy',           year: 'Junior',    xp: 1100, connections: 4,  duoProofs: 2, streak: 3,  badge: null },
+  { rank: 8, name: 'Nico Reyes',    avatarConfig: { seed: 'nico-reyes-03',    bgIndex: 3, accessory: 'none' },
+    major: 'English Lit',          year: 'Junior',    xp: 1100, connections: 4,  duoProofs: 2, streak: 3,  badge: null },
 ]
 
 const ME = {

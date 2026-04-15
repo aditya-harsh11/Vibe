@@ -5,11 +5,11 @@ import { VibeAvatar, GRADIENT_COLORS } from './VibeAvatar'
 
 // Connection types → warm palette tones
 const CONNECTION_TYPE_COLORS = {
-  'Study Ally':        '#6f8b5e',  // sage
+  'Vibe Match':        '#6f8b5e',  // sage
   'Creative Collab':   '#c5532c',  // terracotta
   'Serendipity Clash': '#cd8a3b',  // ochre
   'Energy Sync':       '#e0775a',  // coral
-  'Curiosity Bridge':  '#7b3e52',  // plum
+  'Hidden Overlap':    '#7b3e52',  // plum
 }
 
 const STREAK_MILESTONES = [
